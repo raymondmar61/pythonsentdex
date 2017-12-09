@@ -1,4 +1,4 @@
-#Sentdex Matplotlib Tutorial 1 - Introduction and Line, 2 - Legends titles and labels, 3 bar charts and histograms, 4 - Scatter Plots, 5 - stack plots, 6 Pie Charts, 7 - loading data from files, 
+#Sentdex Matplotlib Tutorial 1 - Introduction and Line, 2 - Legends titles and labels, 3 bar charts and histograms, 4 - Scatter Plots, 5 - stack plots, 6 Pie Charts, 7 - loading data from files, 8 - getting data from the internet and 9 - converting data from the internet, 
 
 
 #Press Zoom button.  Left mouse click zoom in.  Right mouse click zoom out.
@@ -68,13 +68,43 @@ with open("example2.csv","r") as csvfile:
 print(x) #print [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 print(y) #print [5, 3, 4, 7, 4, 3, 5, 7, 4, 4]
 """
+"""
 import numpy as np
 x,y = np.loadtxt("example2.csv", delimiter=",", unpack=True, dtype=np.int64) #dtype=np.int64 converts to integer
 print(x) #print [ 1  2  3  4  5  6  7  8  9 10]
 print(y) #print [5 3 4 7 4 3 5 7 4 4]
-plt.plot(x,y, label="linechartx's_and_y's")
-plt.xlabel("xlabel")
-plt.ylabel("ylabel")
-plt.title("title\ntitlenewline")
-plt.legend()
-plt.show() #show graph
+"""
+import numpy as np
+import urllib
+import matplotlib.dates as mdates
+
+def bytespdate2num(formatdate,encoding="utf-8"):
+	strconverter=mdates.strpdate2num(formatdate)
+	def bytesconverter(bbytes):
+		sstring = bbytes.decode(encoding)
+		return strconverter(sstring)
+	return bytesconverter
+def graph_data(stock):
+	stockpriceurl="https://www.quandl.com/api/v1/datasets/WIKI/"+stock+".csv?column=4&sort_order=asc&collapse=quarterly&trim_start=2012-01-01&trim_end=2015-12-31"
+	sourcecode=urllib.request.urlopen(stockpriceurl).read().decode()
+	print(sourcecode)
+	splitsource=sourcecode.split("\n")
+	del(splitsource[0]) #delete Date,Close the first list item
+	del(splitsource[-1]) #delete null the last list item
+	print(splitsource)
+	dateclose, closeprice = np.loadtxt(splitsource,delimiter=",",unpack=True,converters={0: bytespdate2num("%Y-%m-%d")})
+	print(dateclose)
+	print(closeprice)
+	plt.plot_date(dateclose,closeprice, label="default dots")	
+	plt.xlabel("xlabel")
+	plt.ylabel("ylabel")
+	plt.title("title\ntitlenewline")
+	plt.legend()
+	plt.show() #show graph default dots
+	plt.plot_date(dateclose,closeprice, "-", label="line chart denoated by hyphen")
+	plt.xlabel("xlabel")
+	plt.ylabel("ylabel")
+	plt.title("title\ntitlenewline")
+	plt.legend()
+	plt.show() #show graph line chart denoated by hyphen"	
+graph_data("AAPL")
