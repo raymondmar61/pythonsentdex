@@ -1,4 +1,4 @@
-#Sentdex Matplotlib Tutorial 1 - Introduction and Line, 2 - Legends titles and labels, 3 bar charts and histograms, 4 - Scatter Plots, 5 - stack plots, 6 Pie Charts, 7 - loading data from files, 8 - getting data from the internet and 9 - converting data from the internet, 
+#Sentdex Matplotlib Tutorial 1 - Introduction and Line, 2 - Legends titles and labels, 3 bar charts and histograms, 4 - Scatter Plots, 5 - stack plots, 6 Pie Charts, 7 - loading data from files, 8 - getting data from the internet and 9 - converting data from the internet, 10 - basic customizations, rotating, 11 - handling unix time labels, 12 - more customization of colors and fills, 13 - spines and horizontal lines
 
 
 #Press Zoom button.  Left mouse click zoom in.  Right mouse click zoom out.
@@ -74,6 +74,7 @@ x,y = np.loadtxt("example2.csv", delimiter=",", unpack=True, dtype=np.int64) #dt
 print(x) #print [ 1  2  3  4  5  6  7  8  9 10]
 print(y) #print [5 3 4 7 4 3 5 7 4 4]
 """
+"""
 import numpy as np
 import urllib
 import matplotlib.dates as mdates
@@ -108,3 +109,146 @@ def graph_data(stock):
 	plt.legend()
 	plt.show() #show graph line chart denoated by hyphen"	
 graph_data("AAPL")
+"""
+"""
+import numpy as np
+import urllib
+import matplotlib.dates as mdates
+
+def bytespdate2num(formatdate,encoding="utf-8"):
+	strconverter=mdates.strpdate2num(formatdate)
+	def bytesconverter(bbytes):
+		sstring = bbytes.decode(encoding)
+		return strconverter(sstring)
+	return bytesconverter
+def graph_data(stock):
+	fig = plt.figure()
+	ax1 = plt.subplot2grid((1,1), (0,0))  #ax stands for axis
+	stockpriceurl="https://www.quandl.com/api/v1/datasets/WIKI/"+stock+".csv?column=4&sort_order=asc&collapse=quarterly&trim_start=2012-01-01&trim_end=2015-12-31"
+	sourcecode=urllib.request.urlopen(stockpriceurl).read().decode()
+	print(sourcecode)
+	splitsource=sourcecode.split("\n")
+	del(splitsource[0]) #delete Date,Close the first list item
+	del(splitsource[-1]) #delete null the last list item
+	print(splitsource)
+	dateclose, closeprice = np.loadtxt(splitsource,delimiter=",",unpack=True,converters={0: bytespdate2num("%Y-%m-%d")})
+	print(dateclose)
+	print(closeprice)
+	ax1.plot_date(dateclose,closeprice, "-", label="line chart denoated by hyphen")
+	for label in ax1.xaxis.get_ticklabels():
+		label.set_rotation(45) #45 degrees
+	ax1.grid(True, color='green', linestyle="-", linewidth=5) #show grid lines green color hyphen linewidth is five
+	plt.xlabel("xlabel")
+	plt.ylabel("ylabel")
+	plt.title("title\ntitlenewline")
+	plt.legend()
+	plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+	plt.show() #show graph line chart denoated by hyphen"	
+graph_data("AAPL")
+"""
+"""
+import numpy as np
+import urllib
+import matplotlib.dates as mdates
+
+def bytespdate2num(formatdate,encoding="utf-8"):
+	strconverter=mdates.strpdate2num(formatdate)
+	def bytesconverter(bbytes):
+		sstring = bbytes.decode(encoding)
+		return strconverter(sstring)
+	return bytesconverter
+def graph_data(stock):
+	fig = plt.figure()
+	ax1 = plt.subplot2grid((1,1), (0,0))  #ax stands for axis
+	stockpriceurl="https://www.quandl.com/api/v1/datasets/WIKI/"+stock+".csv?column=4&sort_order=asc&collapse=quarterly&trim_start=2006-01-01&trim_end=2016-12-31"
+	sourcecode=urllib.request.urlopen(stockpriceurl).read().decode()
+	print(sourcecode)
+	splitsource=sourcecode.split("\n")
+	del(splitsource[0]) #delete Date,Close the first list item
+	del(splitsource[-1]) #delete null the last list item
+	print(splitsource)
+	dateclose, closeprice = np.loadtxt(splitsource,delimiter=",",unpack=True,converters={0: bytespdate2num("%Y-%m-%d")})
+	print(dateclose)
+	print(closeprice)
+	ax1.plot_date(dateclose,closeprice, "-", label="line chart denoated by hyphen")	
+	ax1.plot([],[], linewidth=5, label="loss", color="red",alpha=0.5)
+	ax1.plot([],[], linewidth=5, label="gain", color="green",alpha=0.5)	
+	#ax1.fill_between(dateclose,closeprice,0, alpha=0.3) #chart filled below line, alpha is fill transparency
+	#ax1.fill_between(dateclose,closeprice,36, alpha=0.3) #chart filled below line, alpha is fill transparency, y=36  is the y coordinate where the baseline is like the horiztonal line at y=0.  Like purchased stock at 36, above 36 is profit, below 36 is loss.
+	#ax1.fill_between(dateclose,closeprice,closeprice[0], alpha=0.3) #chart filled below line, alpha is fill transparency, y=first close price is the y coordinate where the baseline is like the horiztonal line at y=0.  Like purchased stock at first closed price, above is profit, below is loss.
+	ax1.fill_between(dateclose,closeprice,closeprice[0], where=(closeprice > closeprice[0]), facecolor = "green", alpha=0.3) #alpha is fill transparency, fill is filled when the close price is greater than the first close price.  green fill transparency color.
+	ax1.fill_between(dateclose,closeprice,closeprice[0], where=(closeprice < closeprice[0]), facecolor = "red", alpha=0.5) #alpha is fill transparency, fill is filled green when the close price is greater than the first close price.  red fill transparency color when the close price is less than the first close price.
+	for label in ax1.xaxis.get_ticklabels():
+		label.set_rotation(45) #45 degrees
+	ax1.grid(True, color='green', linestyle="-", linewidth=1) #show grid lines green color hyphen linewidth is one
+	ax1.xaxis.label.set_color("cyan")
+	ax1.yaxis.label.set_color("red")
+	ax1.set_yticks([0,25,50,75]) #y axis tick mark labels 0, 25, 50, 75
+	plt.xlabel("xlabel")
+	plt.ylabel("ylabel")
+	plt.title(stock)
+	plt.legend()
+	plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+	plt.show() #show graph line chart denoated by hyphen"	
+graph_data("EBAY")
+"""
+import numpy as np
+import urllib
+import matplotlib.dates as mdates
+def bytespdate2num(formatdate,encoding="utf-8"):
+	strconverter=mdates.strpdate2num(formatdate)
+	def bytesconverter(bbytes):
+		sstring = bbytes.decode(encoding)
+		return strconverter(sstring)
+	return bytesconverter
+def graph_data(stock):
+	fig = plt.figure()
+	ax1 = plt.subplot2grid((1,1), (0,0))  #ax stands for axis
+	stockpriceurl="https://www.quandl.com/api/v1/datasets/WIKI/"+stock+".csv?column=4&sort_order=asc&collapse=quarterly&trim_start=2006-01-01&trim_end=2016-12-31"
+	sourcecode=urllib.request.urlopen(stockpriceurl).read().decode()
+	print(sourcecode)
+	splitsource=sourcecode.split("\n")
+	del(splitsource[0]) #delete Date,Close the first list item
+	del(splitsource[-1]) #delete null the last list item
+	print(splitsource)
+	dateclose, closeprice = np.loadtxt(splitsource,delimiter=",",unpack=True,converters={0: bytespdate2num("%Y-%m-%d")})
+	print(dateclose)
+	print(closeprice)
+	ax1.plot_date(dateclose,closeprice, "-", label="line chart denoated by hyphen")	
+	ax1.plot([],[], linewidth=5, label="loss", color="red",alpha=0.5)
+	ax1.plot([],[], linewidth=5, label="gain", color="green",alpha=0.5)
+	ax1.axhline(closeprice[0], color="black", linewidth=5) #black horizontal line at the first close price
+	ax1.axhline(50, color="black", linewidth=5) #black horizontal line at y=50
+	ax1.fill_between(dateclose,closeprice,closeprice[0], where=(closeprice > closeprice[0]), facecolor = "green", alpha=0.3) #alpha is fill transparency, fill is filled when the close price is greater than the first close price.  green fill transparency color.
+	ax1.fill_between(dateclose,closeprice,closeprice[0], where=(closeprice < closeprice[0]), facecolor = "red", alpha=0.5) #alpha is fill transparency, fill is filled green when the close price is greater than the first close price.  red fill transparency color when the close price is less than the first close price.
+	for label in ax1.xaxis.get_ticklabels():
+		label.set_rotation(45) #45 degrees
+	ax1.grid(True, color='green', linestyle="-", linewidth=1) #show grid lines green color hyphen linewidth is one
+	ax1.set_yticks([0,25,50,75]) #y axis tick mark labels 0, 25, 50, 75
+	ax1.spines["left"].set_color("cyan") #color of left spine is cyan.   Spine is the line surrounding the chart.
+	ax1.spines["right"].set_visible(False) #no right spine
+	ax1.spines["top"].set_visible(False) #no top spine
+	ax1.spines["left"].set_linewidth(5) #left spine is width 5
+	ax1.tick_params(axis="x", colors="#f06215") #x labels color is orange
+	plt.xlabel("xlabel")
+	plt.ylabel("ylabel")
+	plt.title(stock)
+	plt.legend()
+	plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+	plt.show() #show graph line chart denoated by hyphen"	
+graph_data("EBAY")
+
+
+
+
+# x=[1,2,3]
+# y=[5,7,4]
+# x2=[1,2,3]
+# y2=[10,14,12]
+# plt.plot(x,y, label="firstlineforlegend")
+# plt.plot(x2,y2, label="secondlineforlegend")
+# plt.xlabel("xlabel")
+# plt.ylabel("ylabel")
+# plt.title("title\ntitlenewline")
+# plt.legend()
+# plt.show()
