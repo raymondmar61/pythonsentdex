@@ -1,4 +1,4 @@
-#Sentdex Matplotlib Tutorial 1 - Introduction and Line, 2 - Legends titles and labels, 3 bar charts and histograms, 4 - Scatter Plots, 5 - stack plots, 6 Pie Charts, 7 - loading data from files, 8 - getting data from the internet and 9 - converting data from the internet, 10 - basic customizations, rotating, 11 - handling unix time labels, 12 - more customization of colors and fills, 13 - spines and horizontal lines
+#Sentdex Matplotlib Tutorial 1 - Introduction and Line, 2 - Legends titles and labels, 3 bar charts and histograms, 4 - Scatter Plots, 5 - stack plots, 6 Pie Charts, 7 - loading data from files, 8 - getting data from the internet and 9 - converting data from the internet, 10 - basic customizations, rotating, 11 - handling unix time labels, 12 - more customization of colors and fills, 13 - spines and horizontal lines, 14 - candlestick OHLC graphs, 15 - styles, 16 - Live graphs
 
 
 #Press Zoom button.  Left mouse click zoom in.  Right mouse click zoom out.
@@ -192,6 +192,7 @@ def graph_data(stock):
 	plt.show() #show graph line chart denoated by hyphen"	
 graph_data("EBAY")
 """
+"""
 import numpy as np
 import urllib
 import matplotlib.dates as mdates
@@ -237,10 +238,134 @@ def graph_data(stock):
 	plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
 	plt.show() #show graph line chart denoated by hyphen"	
 graph_data("EBAY")
-
-
-
-
+"""
+"""
+import matplotlib.dates as mdates
+import matplotlib.ticker as mticker
+from matplotlib.finance import candlestick_ohlc
+import numpy as np
+import urllib
+import random
+def bytespdate2num(formatdate,encoding="utf-8"):
+	strconverter=mdates.strpdate2num(formatdate)
+	def bytesconverter(bbytes):
+		sstring = bbytes.decode(encoding)
+		return strconverter(sstring)
+	return bytesconverter
+def graph_data(stock):
+	fig = plt.figure()
+	ax1 = plt.subplot2grid((1,1), (0,0))  #ax stands for axis
+	stockpriceurl="https://www.quandl.com/api/v1/datasets/WIKI/"+stock+".csv?column=4&sort_order=asc&collapse=quarterly&trim_start=2006-01-01&trim_end=2016-12-31"
+	sourcecode=urllib.request.urlopen(stockpriceurl).read().decode()
+	print(sourcecode)
+	splitsource=sourcecode.split("\n")
+	del(splitsource[0]) #delete Date,Close the first list item
+	del(splitsource[-1]) #delete null the last list item
+	print(splitsource)
+	dateclose, closeprice = np.loadtxt(splitsource,delimiter=",",unpack=True,converters={0: bytespdate2num("%Y-%m-%d")})
+	print(dateclose)
+	print(closeprice)
+	x=0
+	y=len(dateclose)
+	ohlc=[]
+	while x < y:
+		openprice = random.randint(30,50)
+		highprice = random.randint(openprice+10,openprice+20)
+		lowprice = random.randint(openprice-20,openprice-10)
+		volume = random.randint(1000000,2000000)
+		appendme = dateclose[x], openprice, highprice, lowprice, closeprice[x], volume
+		ohlc.append(appendme)
+		x+=1
+	candlestick_ohlc(ax1, ohlc, width = 0.4, colorup="#77d879", colordown="#db3f3f")
+	for label in ax1.xaxis.get_ticklabels():
+		label.set_rotation(45)
+	ax1.xaxis.set_major_formatter(mdates.DateFormatter("%Y)%m-%d"))
+	ax1.xaxis.set_major_locator(mticker.MaxNLocator(5)) #number of markes on x-axis
+	ax1.grid(True)
+	plt.xlabel("xlabel")
+	plt.ylabel("ylabel")
+	plt.title(stock)
+	plt.legend()
+	plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+	plt.show() #show graph line chart denoated by hyphen"	
+graph_data("EBAY")
+"""
+"""
+import matplotlib.dates as mdates
+import matplotlib.ticker as mticker
+from matplotlib.finance import candlestick_ohlc
+from matplotlib import style
+import numpy as np
+import urllib
+import random
+#style.use("ggplot")
+style.use("fivethirtyeight")
+print(plt.style.available) #print ['seaborn-paper', 'seaborn-dark', 'seaborn-poster', 'seaborn-whitegrid', 'fivethirtyeight', 'grayscale', 'ggplot', 'seaborn-notebook', 'seaborn-muted', 'seaborn-darkgrid', 'seaborn-bright', 'seaborn-colorblind', 'seaborn-white', 'seaborn-ticks', 'seaborn-talk', 'seaborn-pastel', 'seaborn-deep', 'classic', 'seaborn-dark-palette', 'dark_background', 'bmh']
+print(plt.__file__) #find the directory for the styles.  Open the style file to modify.
+def bytespdate2num(formatdate,encoding="utf-8"):
+	strconverter=mdates.strpdate2num(formatdate)
+	def bytesconverter(bbytes):
+		sstring = bbytes.decode(encoding)
+		return strconverter(sstring)
+	return bytesconverter
+def graph_data(stock):
+	fig = plt.figure()
+	ax1 = plt.subplot2grid((1,1), (0,0))  #ax stands for axis
+	stockpriceurl="https://www.quandl.com/api/v1/datasets/WIKI/"+stock+".csv?column=4&sort_order=asc&collapse=quarterly&trim_start=2006-01-01&trim_end=2016-12-31"
+	sourcecode=urllib.request.urlopen(stockpriceurl).read().decode()
+	print(sourcecode)
+	splitsource=sourcecode.split("\n")
+	del(splitsource[0]) #delete Date,Close the first list item
+	del(splitsource[-1]) #delete null the last list item
+	print(splitsource)
+	dateclose, closeprice = np.loadtxt(splitsource,delimiter=",",unpack=True,converters={0: bytespdate2num("%Y-%m-%d")})
+	print(dateclose)
+	print(closeprice)
+	x=0
+	y=len(dateclose)
+	ohlc=[]
+	while x < y:
+		openprice = random.randint(30,50)
+		highprice = random.randint(openprice+10,openprice+20)
+		lowprice = random.randint(openprice-20,openprice-10)
+		volume = random.randint(1000000,2000000)
+		appendme = dateclose[x], openprice, highprice, lowprice, closeprice[x], volume
+		ohlc.append(appendme)
+		x+=1
+	#candlestick_ohlc(ax1, ohlc, width = 0.4, colorup="#77d879", colordown="#db3f3f")
+	ax1.plot(dateclose,closeprice)
+	for label in ax1.xaxis.get_ticklabels():
+		label.set_rotation(45)
+	ax1.xaxis.set_major_formatter(mdates.DateFormatter("%Y)%m-%d"))
+	ax1.xaxis.set_major_locator(mticker.MaxNLocator(5)) #number of markes on x-axis
+	ax1.grid(True)
+	plt.xlabel("xlabel")
+	plt.ylabel("ylabel")
+	plt.title(stock)
+	plt.legend()
+	plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+	plt.show() #show graph line chart denoated by hyphen"	
+graph_data("EBAY")
+"""
+import matplotlib.animation as animation
+from matplotlib import style
+style.use("fivethirtyeight")
+fig = plt.figure()
+ax1 = fig.add_subplot(1,1,1)
+def animate(i):
+	graph_data = open("example.txt","r").read()
+	lines = graph_data.split("\n")
+	xcoordinates = []
+	ycoordinates = []
+	for line in lines:
+		if len(line) > 1:
+			x,y = line.split(",")
+			xcoordinates.append(x)
+			ycoordinates.append(y)
+	ax1.clear()
+	ax1.plot(xcoordinates,ycoordinates)
+ani = animation.FuncAnimation(fig, animate, interval=1000) #interval in miliseconds 1000 miliseconds = 1 second.  Interval created to update chart when new coordinates are saved in example.txt.
+plt.show()
 # x=[1,2,3]
 # y=[5,7,4]
 # x2=[1,2,3]
